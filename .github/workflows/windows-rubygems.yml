@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
       - name: Setup ruby
-        uses: ruby/setup-ruby-pkgs@e5897b3f277d700f7b9e24b5819112945add74ff # v1.32.3
+        uses: ruby/setup-ruby-pkgs@af45875e8df3485265907b05fe263a4a1a07eeb2 # v1.32.4
         with:
           ruby-version: ${{ matrix.ruby.value }}
           bundler: none
