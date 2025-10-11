@@ -95,21 +95,16 @@ module Bundler
     def gem(name, *args)
       if name =~ %r[^(https?://.+)/([^/]+)/(.*)$]
         host, scope, name = $1, $2, $3
-        scope = scope[1..-1] if host.end_with?('github.com') # kludge bc they do non-@ namespaces <3
+        source_uri = [host, scope].join("/")
 
-        source = [host, scope].join("/")
-        source = Bundler::SourceList.new.add_rubygems_source("remotes" => source)
-
-        return with_source(source) {
+        return source(source_uri) {
           gem name, *args
         }
       elsif name.start_with?("@") && name.include?("/")
         scope, name = name.split("/")
+        source_uri = [Gem.host, scope].join("/")
 
-        source = [Gem.host, scope].join("/")
-        source = Bundler::SourceList.new.add_rubygems_source("remotes" => source)
-
-        return with_source(source) {
+        return source(source_uri) {
           gem name, *args
         }
       end
