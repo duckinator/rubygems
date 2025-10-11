@@ -101,8 +101,14 @@ module Bundler
           gem name, *args
         }
       elsif name.start_with?("@") && name.include?("/")
+        host = Gem.host # FIXME: This is wrong.
         scope, name = name.split("/")
-        source_uri = [Gem.host, scope].join("/")
+
+        # kludge for GitHub Packages, since their non-@-prefixed "namespaces"
+        # are otherwise identical to the concept of "scopes" I'm introducing.
+        scope = scope[1..-1] if name.start_with?("@") && host.start_with?("https://rubygems.pkg.github.com/")
+
+        source_uri = [host, scope].join("/")
 
         return source(source_uri) {
           gem name, *args
