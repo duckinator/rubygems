@@ -95,20 +95,23 @@ module Bundler
     def gem(name, *args)
       if name =~ %r[^(https?://.+)/([^/]+)/(.*)$]
         host, scope, name = $1, $2, $3
-        source_uri = [host, scope].join("/")
+        source_uri = Gem::URI.join(host, scope).to_s
 
         return source(source_uri) {
           gem name, *args
         }
       elsif name.start_with?("@") && name.include?("/")
-        host = Gem.host # FIXME: This is wrong.
+        global_src = @sources.global_rubygems_source
+        global_src.remote! # Why doesn't *specifying a remote global source* do this?
+        host = global_src.remotes.first.to_s # FIXME: Why is it possible for this to have >1 remote? Mirrors, or something else?
+
         scope, name = name.split("/")
 
         # kludge for GitHub Packages, since their non-@-prefixed "namespaces"
         # are otherwise identical to the concept of "scopes" I'm introducing.
-        scope = scope[1..-1] if name.start_with?("@") && host.start_with?("https://rubygems.pkg.github.com/")
+        scope = scope[1..-1] if scope.start_with?("@") && host.start_with?("https://rubygems.pkg.github.com/")
 
-        source_uri = [host, scope].join("/")
+        source_uri = Gem::URI.join(host, scope).to_s
 
         return source(source_uri) {
           gem name, *args
